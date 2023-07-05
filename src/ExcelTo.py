@@ -68,23 +68,20 @@ def dealDataExcel(dataExcelDir, outPath, outTypeList):
         print("Please specify the format")
         return
 
-    print("start deal data excel")
+    print("开始生成配置表")
     f = excelPathGenerator(dataExcelDir)
     while True:
         try:
-            path = next(f)
-            t = time.time()
-            sTiem = int(round(t * 1000))
-            print("deal file:" + path)
+            path = next(f)            
+            t1 = int(round(time.time() * 1000))            
 
             if "ts" in outTypeList:
                 if not os.path.exists(outPath):
                     os.makedirs(outPath)
                 creatorCode(path, outPath, TTSCreator())            
-
-            t = time.time()
-            eTiem = int(round(t * 1000))
-            print(" time:" + str(eTiem - sTiem))
+            
+            t2 = int(round(time.time() * 1000))
+            print("-> " + path + " time: " + str(t2 - t1) + "ms")
         except StopIteration:
             break
 
@@ -98,12 +95,7 @@ def dealFormulaExcel(path, outPath, outTypeList):
             with open(outPath, 'w') as load_f:
                 load_f.write(creator.creatorTS(ws, 4, ws.max_row))        
 
-
-def saveToFile(outPath, data):
-    with open(outPath, 'w', encoding="utf-8") as load_f:
-        load_f.write(data)
-
-
+# 处理多语言表
 def dealLanguageExcel(path, outDir):
     ws = load_workbook(filename=path, read_only=True)["Sheet1"]
     creator = TLanguageCreator()
@@ -111,12 +103,16 @@ def dealLanguageExcel(path, outDir):
                creator.creatorsZHLanguage(ws, 4, ws.max_row))
     saveToFile(os.path.join(outDir, "en.json"),
                creator.creatorsENLanguage(ws, 4, ws.max_row))
+    
+
+def saveToFile(outPath, data):
+    with open(outPath, 'w', encoding="utf-8") as load_f:
+        load_f.write(data)
 
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(
-            sys.argv[1:], "ht:f:o:l:", ["ts", "language"])            
+        opts, args = getopt.getopt(sys.argv[1:], "ht:f:o:l:", ["ts", "language"])            
     except getopt.GetoptError:
         sys.exit(2)
 
