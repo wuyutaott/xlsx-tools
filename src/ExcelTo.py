@@ -40,8 +40,14 @@ def getFieldListFromWS(ws, creator):
 
 
 def creatorCode(path, exportDir, creator):
+    """
+    生成代码
+    :param path: xlsx文件路径
+    :param exportDir: 生成文件路径
+    :param creator: 生成器对象
+    """
     ws = load_workbook(filename=path, read_only=True)["Sheet1"]
-    fileName = os.path.splitext(os.path.basename(path))[0]
+    fileName = os.path.splitext(os.path.basename(path))[0]    
     tsFilePath = os.path.join(exportDir, fileName + creator.getFileSuffix())
 
     maxRows = ws.max_row  # 行
@@ -54,6 +60,10 @@ def creatorCode(path, exportDir, creator):
 
 
 def excelPathGenerator(excelDir):
+    """
+    生成器 - 用于遍历文件目录找出后缀名为xlsx或xls的文件
+    :param excelDir: 需要便利的目录
+    """
     for parent, _, filenames in os.walk(excelDir):
         for filename in filenames:
             if filename.startswith("~") or (not filename.endswith(".xlsx")
@@ -62,8 +72,11 @@ def excelPathGenerator(excelDir):
             path = os.path.join(parent, filename)
             yield path
 
-# 处理数据表excel
+
 def dealDataExcel(dataExcelDir, outPath, outTypeList):
+    """
+    处理数据表excel
+    """
     if len(outTypeList) < 1:
         print("Please specify the format")
         return
@@ -85,8 +98,11 @@ def dealDataExcel(dataExcelDir, outPath, outTypeList):
         except StopIteration:
             break
 
-# 处理公式excel
+
 def dealFormulaExcel(path, outPath, outTypeList):
+    """
+    处理公式excel
+    """
     if path:
         ws = load_workbook(filename=path, read_only=True)["Sheet1"]
         if "ts" in outTypeList:
@@ -95,8 +111,11 @@ def dealFormulaExcel(path, outPath, outTypeList):
             with open(outPath, 'w') as load_f:
                 load_f.write(creator.creatorTS(ws, 4, ws.max_row))        
 
-# 处理多语言表
+
 def dealLanguageExcel(path, outDir):
+    """
+    处理多语言表
+    """
     ws = load_workbook(filename=path, read_only=True)["Sheet1"]
     creator = TLanguageCreator()
     saveToFile(os.path.join(outDir, "zh_cn.json"),
