@@ -33,8 +33,9 @@ class TBaseCreator(object):
     _fieldList = None
     # key
     _keyList = None
-
-    # 到处文件后缀名
+    # 导出文件前缀
+    _filePrefix = ""
+    # 导出文件后缀
     _fileSuffix = ""
 
     _dataStartRow = 5
@@ -57,6 +58,9 @@ class TBaseCreator(object):
 
     def getKeyList(self):
         return self._keyList
+    
+    def getFilePrefix(self):
+        return self._filePrefix
 
     def getFileSuffix(self):
         return self._fileSuffix

@@ -97,7 +97,8 @@ class TTSCreator(TBaseCreator):
 
     def __init__(self, name=None, fieldList=None, keyList=None):
         super().init(name, fieldList, keyList)
-        self._fileSuffix = "Txt.ts"
+        self._filePrefix = "table-"
+        self._fileSuffix = ".ts"
 
     def creatorField(self, name, sType, comment):
         return TTSField(name, sType, comment)
@@ -116,11 +117,11 @@ class TTSCreator(TBaseCreator):
         1.创建字段定义
         2.创建工具函数
         """
-        sRecord = "I" + self._name + "Record"
-        sTale = self._name + "Txt"
+        sRecord = self._name.capitalize() + "Record"
+        sTale = "Table" + self._name.capitalize()
        
         # 创建字段定义
-        s = "export interface " + sRecord + " { \n"
+        s = "export class " + sRecord + " { \n"
         for aField in self._fieldList:
             s += "    // " + aField.getComment() + "\n"     # 字段注释
             s += "    " + aField.getName() + ": "           # 字段名称
@@ -158,7 +159,7 @@ class TTSCreator(TBaseCreator):
 
     def creatorData(self, ws, maxCol, maxRows):
         s = ""
-        sRecord = "I" + self._name + "Record"
+        sRecord = self._name.capitalize() + "Record"
         if self.keyIsNumber():
             s += "let map: Map<number, " + sRecord + \
                 "> = new Map<number, " + sRecord + ">();\n"

@@ -49,7 +49,7 @@ def createCode(path, exportDir, creator):
     """
     ws = load_workbook(filename=path, read_only=True)["Sheet1"]
     fileName = os.path.splitext(os.path.basename(path))[0]    
-    tsFilePath = os.path.join(exportDir, fileName + creator.getFileSuffix())
+    tsFilePath = os.path.join(exportDir, creator.getFilePrefix() + fileName.lower() + creator.getFileSuffix())
 
     maxRows = ws.max_row  # 行
     aFile = open(tsFilePath, "w", encoding="utf-8")
