@@ -41,38 +41,7 @@ class TTSField(TBaseField):
 
             ret = ret[:-1]
             ret += "]"
-        # ,; 分隔
-        if (self._type == "list<list<string>>"):
-            sList_1 = sData.split(";")
-            ret = "["
-            for subS_1 in sList_1:
-                sList_2 = subS_1.split(",")
-                ret += "["
-                s = ""
-                for subS_2 in sList_2:
-                    subS_2 = self.dealLineChar(subS_2)
-                    s += "\"" + str(subS_2) + "\","
-
-                ret += s[:-1]
-                ret += "],"
-            ret = ret[:-1]
-            ret += "]"
-
-        if (self._type == "list<list<int>>"):
-            sList_1 = sData.split(";")
-            ret = "["
-            for subS_1 in sList_1:
-                sList_2 = subS_1.split(",")
-                ret += "["
-                s = ""
-                for subS_2 in sList_2:
-                    subS_2 = self.dealLineChar(subS_2)
-                    s += str(subS_2) + ","
-
-                ret += s[:-1]
-                ret += "],"
-            ret = ret[:-1]
-            ret += "]"
+        # , 分隔
         if (self._type == "list<string>"):
             sList = sData.split(",")
             ret = "["
@@ -82,6 +51,44 @@ class TTSField(TBaseField):
 
             ret = ret[:-1]
             ret += "]"
+        # ,; 分隔
+        if (self._type == "list<list<string>>"):
+            if sData == "":
+                ret += "[]"
+            else:
+                sList_1 = sData.split(";")
+                ret = "["
+                for subS_1 in sList_1:
+                    sList_2 = subS_1.split(",")
+                    ret += "["
+                    s = ""
+                    for subS_2 in sList_2:
+                        subS_2 = self.dealLineChar(subS_2)
+                        s += "\"" + str(subS_2) + "\","
+
+                    ret += s[:-1]
+                    ret += "],"
+                ret = ret[:-1]
+                ret += "]"
+        # ,; 分隔
+        if (self._type == "list<list<int>>"):
+            if sData == "":
+                ret += "[]"
+            else:
+                sList_1 = sData.split(";")
+                ret = "["
+                for subS_1 in sList_1:
+                    sList_2 = subS_1.split(",")
+                    ret += "["
+                    s = ""
+                    for subS_2 in sList_2:
+                        subS_2 = self.dealLineChar(subS_2)
+                        s += str(subS_2) + ","
+
+                    ret += s[:-1]
+                    ret += "],"
+                ret = ret[:-1]
+                ret += "]"
 
         return self._name + ":" + ret
 

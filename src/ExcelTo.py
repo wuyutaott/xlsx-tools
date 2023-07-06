@@ -22,7 +22,7 @@ def getKeyListFromWS(ws):
     keyConfig = keyConfig.replace("key:", "")   # 删除字符串开头key:
     keyList = keyConfig.split(",")              # 把字符串切割放到数组中
     keyList = list(map(int, keyList))           # 把数组元素变成数值类型
-    keyList = sorted(keyList)                   # 主键排序    
+    keyList = sorted(keyList)                   # 主键排序
     return keyList
 
 
