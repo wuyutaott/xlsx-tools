@@ -18,12 +18,11 @@ def getKeyListFromWS(ws):
     从配置表的第一行数据中获取主键信息，支持单一主键，支持联合主键
     """    
     keyList = []
-    for col in ws[1]:
-        if (col.value != None):
-            keyList.append(col.value)
-        else:
-            continue
-    print("keyList", keyList)
+    keyConfig = ws[1][0].value                  # 提取主键数据
+    keyConfig = keyConfig.replace("key:", "")   # 删除字符串开头key:
+    keyList = keyConfig.split(",")              # 把字符串切割放到数组中
+    keyList = list(map(int, keyList))           # 把数组元素变成数值类型
+    keyList = sorted(keyList)                   # 主键排序    
     return keyList
 
 

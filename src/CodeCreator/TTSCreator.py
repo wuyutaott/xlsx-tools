@@ -96,7 +96,12 @@ class TTSCreator(TBaseCreator):
         return TTSField(name, sType, comment)
 
     def keyIsNumber(self):
-        return len(self._keyList) == 1 and self._fieldList[0].getTargetType() == "number"
+        if len(self._keyList) == 1:
+            index = self._keyList[0]
+            type = self._fieldList[index].getTargetType()
+            if type == "number":
+                return True
+        return False        
 
     def creatorDeclare(self):
         """
@@ -123,25 +128,15 @@ class TTSCreator(TBaseCreator):
             print("错误：配置表没有配置主键")
             return ""
         elif (len(self._keyList) > 1): # 多主键
-            for ik in range(0, len(self._keyList)):
+            for ik in self._keyList:
                 paramStr += self._fieldList[ik].getName() + ": " + self._fieldList[ik].getTargetType() + ", "
                 mapKeyStr += "${" + self._fieldList[ik].getName() + "}_"
             paramStr = paramStr[:-2]
             mapKeyStr = mapKeyStr[:-1] + "`"
         else: # 单主键
-            keyFieldName = self._keyList[0] 
-            index = -1 # 主键字段索引
-            for ik in range(0, len(self._fieldList)):
-                curField = self._fieldList[ik]
-                if (curField.getName() == keyFieldName):
-                    index = ik
-                    break
-            if index == -1:
-                print('没有找到主键索引')
-                return ""
-            else:                
-                paramStr = self._fieldList[index].getName() + ": " + self._fieldList[index].getTargetType()
-                mapKeyStr = self._fieldList[index].getName()
+            index = self._keyList[0] # 主键字段索引
+            paramStr = self._fieldList[index].getName() + ": " + self._fieldList[index].getTargetType()
+            mapKeyStr = self._fieldList[index].getName()
 
         s += "    getDataByKey(" + paramStr + "): " + \
             sRecord + " | undefined {\n"
@@ -170,12 +165,13 @@ class TTSCreator(TBaseCreator):
                 break
             key = ""
             if not self.keyIsNumber():
-                for ik in range(0, len(self._keyList)):
-                    key += str(row[ik].value) + "_"
+                for index in self._keyList:
+                    key += str(row[index].value) + "_"
                 key = key[:-1]
                 key = "\'" + str(key) + "\'"
             else:
-                key = str(row[0].value)
+                index = self._keyList[0]
+                key = str(row[index].value)
             sRow = ""
             sRow += "map.set(" + str(key) + ",{"
             for icol in range(0, maxCol):
