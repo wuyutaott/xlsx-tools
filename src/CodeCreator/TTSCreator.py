@@ -11,8 +11,11 @@ TTypeToTSType = {
 
 
 class TTSField(TBaseField):
-    def getTargetType(self):
-        return TTypeToTSType.get(self._type)
+    def getTargetType(self):        
+        value = TTypeToTSType.get(self._type)
+        if value == None:
+            print("字段数据配型配置错误", self._name, self._type)
+        return value
 
     def dealLineChar(self, sData):
         sData = sData.replace("\n", "\\n").replace("\"", "\\\"")
@@ -96,40 +99,58 @@ class TTSCreator(TBaseCreator):
         return len(self._keyList) == 1 and self._fieldList[0].getTargetType() == "number"
 
     def creatorDeclare(self):
+        """
+        创建声明
+        1.创建字段定义
+        2.创建工具函数
+        """
         sRecord = "I" + self._name + "Record"
         sTale = self._name + "Txt"
+       
+        # 创建字段定义
         s = "export interface " + sRecord + " { \n"
         for aField in self._fieldList:
-            s += "    // " + aField.getComment() + "\n"
-            s += "    " + aField.getName() + ":" + aField.getTargetType() + "\n"
+            s += "    // " + aField.getComment() + "\n"     # 字段注释
+            s += "    " + aField.getName() + ": "           # 字段名称
+            s += aField.getTargetType() + "\n"              # 字段类型
         s += "}\n"
 
-        # ts export
-
-        s += "export let " + sTale + " = {\n"
-
-        paramStr_1 = ""
-        paramStr_2 = "`"
-        if (len(self._keyList) > 1):
+        # 创建工具函数
+        s += "\nexport let " + sTale + " = {\n"
+        paramStr = ""       # getDataByKey函数参数
+        mapKeyStr = "`"     # map.get函数参数
+        if (len(self._keyList) == 0):
+            print("错误：配置表没有配置主键")
+            return ""
+        elif (len(self._keyList) > 1): # 多主键
             for ik in range(0, len(self._keyList)):
-                paramStr_1 += self._fieldList[ik].getName(
-                ) + ":" + self._fieldList[ik].getTargetType() + ","
-                paramStr_2 += "${" + self._fieldList[ik].getName() + "}_"
-            paramStr_1 = paramStr_1[:-1]
-            paramStr_2 = paramStr_2[:-1] + "`"
-        else:
-            paramStr_1 = self._fieldList[0].getName(
-            ) + ":" + self._fieldList[0].getTargetType()
-            paramStr_2 = self._fieldList[0].getName()
+                paramStr += self._fieldList[ik].getName() + ": " + self._fieldList[ik].getTargetType() + ", "
+                mapKeyStr += "${" + self._fieldList[ik].getName() + "}_"
+            paramStr = paramStr[:-2]
+            mapKeyStr = mapKeyStr[:-1] + "`"
+        else: # 单主键
+            keyFieldName = self._keyList[0] 
+            index = -1 # 主键字段索引
+            for ik in range(0, len(self._fieldList)):
+                curField = self._fieldList[ik]
+                if (curField.getName() == keyFieldName):
+                    index = ik
+                    break
+            if index == -1:
+                print('没有找到主键索引')
+                return ""
+            else:                
+                paramStr = self._fieldList[index].getName() + ": " + self._fieldList[index].getTargetType()
+                mapKeyStr = self._fieldList[index].getName()
 
-        s += "    getDataByKey(" + paramStr_1 + "): " + \
-            sRecord + "| undefined {\n"
-        s += "        return map.get("+paramStr_2+");\n"
-        s += "    },\n"
+        s += "    getDataByKey(" + paramStr + "): " + \
+            sRecord + " | undefined {\n"
+        s += "        return map.get(" + mapKeyStr + ");\n"
+        s += "    },\n\n"
         s += "    getAllData() {\n"
         s += "        return map;\n"
         s += "    },\n"
-        s += "};\n"
+        s += "};\n\n"
 
         return s
 
@@ -165,8 +186,3 @@ class TTSCreator(TBaseCreator):
             s += sRow
 
         return s
-
-
-# if __name__ == "__main__":
-#     aClass = TTSClass("TxtTable")
-#     print(aClass.getName()) 

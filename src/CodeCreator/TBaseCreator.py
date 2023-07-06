@@ -9,7 +9,7 @@ class TBaseField(object):
     def __init__(self, name, sType, comment):
         self._name = name
         self._type = sType
-        self._comment = comment
+        self._comment = comment        
 
     def getComment(self):
         return self._comment
@@ -67,15 +67,21 @@ class TBaseCreator(object):
 
     @abc.abstractclassmethod
     def creatorDeclare(self):
+        """
+        创建数据声明部分
+        """
         return ""
 
     @abc.abstractclassmethod
     def creatorData(self, ws, maxCol, maxRows):
+        """
+        创建数据部分
+        """
         return ""
 
     def ceatorAllCode(self, ws, maxCol, maxRows):
         s = "// DO NOT EDIT! This is a generated file.\n"
-        s += "\n"
-        s += self.creatorData(ws, maxCol, maxRows)
+        s += "\n"        
         s += self.creatorDeclare()
+        s += self.creatorData(ws, maxCol, maxRows)
         return s

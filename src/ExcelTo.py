@@ -14,13 +14,16 @@ from CodeCreator.TLanguageCreator import TLanguageCreator
 
 
 def getKeyListFromWS(ws):
-    # 获得表 主键
+    """
+    从配置表的第一行数据中获取主键信息，支持单一主键，支持联合主键
+    """    
     keyList = []
     for col in ws[1]:
         if (col.value != None):
             keyList.append(col.value)
         else:
-            break
+            continue
+    print("keyList", keyList)
     return keyList
 
 
@@ -30,8 +33,7 @@ def getFieldListFromWS(ws, creator):
     # 前3行为表说明 主键 字段 注释
     for col in ws[4]:
         if (col.value != None):
-            aField = creator.creatorField(
-                col.value, ws[3][maxCol].value, ws[2][maxCol].value)
+            aField = creator.creatorField(col.value, ws[3][maxCol].value, ws[2][maxCol].value)
             fieldList.append(aField)
             maxCol += 1
         else:
@@ -39,7 +41,7 @@ def getFieldListFromWS(ws, creator):
     return fieldList
 
 
-def creatorCode(path, exportDir, creator):
+def createCode(path, exportDir, creator):
     """
     生成代码
     :param path: xlsx文件路径
@@ -91,7 +93,7 @@ def dealDataExcel(dataExcelDir, outPath, outTypeList):
             if "ts" in outTypeList:
                 if not os.path.exists(outPath):
                     os.makedirs(outPath)
-                creatorCode(path, outPath, TTSCreator())            
+                createCode(path, outPath, TTSCreator())            
             
             t2 = int(round(time.time() * 1000))
             print("-> " + path + " time: " + str(t2 - t1) + "ms")
